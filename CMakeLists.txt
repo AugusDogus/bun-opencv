@@ -19,22 +19,18 @@ if(UNIX)
     set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
     if(APPLE)
-        # Debug output for macOS
-        message(STATUS "macOS OpenCV library paths:")
-        execute_process(
-            COMMAND ls -la $ENV{OPENCV_LIB_DIR}
-            COMMAND grep "libopencv"
-            OUTPUT_VARIABLE OPENCV_LIB_LIST
-        )
-        message(STATUS "Found libraries:\n${OPENCV_LIB_LIST}")
-
-        # On macOS, libraries are named libopencv_*.dylib
-        set(OpenCV_LIBRARIES "")
-        foreach(lib ${OpenCV_LIBRARIES})
-            string(REGEX REPLACE "^opencv_" "libopencv_" DYLIB_NAME "${lib}")
-            string(APPEND DYLIB_NAME ".dylib")
-            list(APPEND OpenCV_LIBRARIES "$ENV{OPENCV_LIB_DIR}/${DYLIB_NAME}")
-        endforeach()
+        # If pkg-config didn't find libraries, set them manually
+        if(NOT OpenCV_LIBRARIES)
+            set(OpenCV_LIBRARY_DIRS $ENV{OPENCV_LIB_DIR})
+            set(OpenCV_INCLUDE_DIRS $ENV{OPENCV_INCLUDE_DIR})
+            
+            # List the specific libraries we need
+            set(OpenCV_LIBRARIES
+                "${OpenCV_LIBRARY_DIRS}/libopencv_core.dylib"
+                "${OpenCV_LIBRARY_DIRS}/libopencv_imgproc.dylib"
+                "${OpenCV_LIBRARY_DIRS}/libopencv_imgcodecs.dylib"
+            )
+        endif()
     endif()
 else()
     # Windows
