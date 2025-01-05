@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-13]
+        os: [windows-latest, ubuntu-latest, macos-latest-large]
         include:
           - os: windows-latest
             setup_cmd: |
@@ -24,6 +24,7 @@ jobs:
               echo OPENCV_INCLUDE_DIR=C:\tools\opencv\build\include>> %GITHUB_ENV%
               echo OPENCV_LIB_DIR=C:\tools\opencv\build\x64\vc16\lib>> %GITHUB_ENV%
               echo PATH=C:\tools\opencv\build\x64\vc16\bin;%PATH%>> %GITHUB_ENV%
+            shell: cmd
           - os: ubuntu-latest
             setup_cmd: |
               sudo apt-get update
@@ -31,12 +32,14 @@ jobs:
               echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/usr/include/opencv4" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=/usr/lib" >> $GITHUB_ENV
-          - os: macos-13
+            shell: bash
+          - os: macos-latest-large
             setup_cmd: |
               brew install opencv
               echo "OPENCV_DIR=/usr/local/opt/opencv" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/usr/local/opt/opencv/include/opencv4" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=/usr/local/opt/opencv/lib" >> $GITHUB_ENV
+            shell: bash
 
     defaults:
       run:
@@ -51,12 +54,6 @@ jobs:
           bun-version: latest
 
       - name: Setup OpenCV
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: ${{ matrix.setup_cmd }}
-
-      - name: Setup OpenCV
-        if: matrix.os != 'windows-latest'
         run: ${{ matrix.setup_cmd }}
 
       - name: Install dependencies
@@ -100,7 +97,7 @@ jobs:
           mkdir -p build/bin/Release build/lib
           cp artifacts/binaries-windows-latest/build/bin/Release/*.dll build/bin/Release/ || true
           cp artifacts/binaries-ubuntu-latest/build/lib/*.so build/lib/ || true
-          cp artifacts/binaries-macos-13/build/lib/*.dylib build/lib/ || true
+          cp artifacts/binaries-macos-latest-large/build/lib/*.dylib build/lib/ || true
 
       - name: Install dependencies
         run: bun install
