@@ -20,6 +20,7 @@ jobs:
           - os: windows-latest
             setup_cmd: |
               choco install opencv --version=4.10.0
+              echo "OPENCV_BIN_DIR=C:\\tools\\opencv\\build\\x64\\vc16\\bin">> %GITHUB_ENV%
               echo "OPENCV_DIR=C:\\tools\\opencv">> %GITHUB_ENV%
               echo "OPENCV_INCLUDE_DIR=C:\\tools\\opencv\\build\\include">> %GITHUB_ENV%
               echo "OPENCV_LIB_DIR=C:\\tools\\opencv\\build\\x64\\vc16\\lib">> %GITHUB_ENV%
@@ -88,7 +89,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cmake-
 
-      - name: Configure and Build
+      - name: Configure and Build (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build . --config Release
+
+      - name: Configure and Build (Unix)
+        if: matrix.os != 'windows-latest'
         run: |
           mkdir -p build
           cd build
