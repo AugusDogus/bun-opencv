@@ -1,0 +1,103 @@
+name: Build and Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            setup_cmd: |
+              echo "OPENCV_DIR=C:/tools/opencv/build" >> $GITHUB_ENV
+              echo "OPENCV_BIN_DIR=C:/tools/opencv/build/x64/vc16/bin" >> $GITHUB_ENV
+              echo "OPENCV_INCLUDE_DIR=C:/tools/opencv/build/include" >> $GITHUB_ENV
+              echo "OPENCV_LIB_DIR=C:/tools/opencv/build/x64/vc16/lib" >> $GITHUB_ENV
+              echo "C:/tools/opencv/build/x64/vc16/bin" >> $GITHUB_PATH
+          - os: ubuntu-latest
+            setup_cmd: |
+              sudo apt-get update
+              sudo apt-get install -y libopencv-dev
+              echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
+              echo "OPENCV_BIN_DIR=/usr/lib" >> $GITHUB_ENV
+              echo "OPENCV_INCLUDE_DIR=/usr/include/opencv4" >> $GITHUB_ENV
+              echo "OPENCV_LIB_DIR=/usr/lib" >> $GITHUB_ENV
+          - os: macos-latest
+            setup_cmd: |
+              brew install opencv
+              echo "OPENCV_DIR=/usr/local/opt/opencv" >> $GITHUB_ENV
+              echo "OPENCV_BIN_DIR=/usr/local/opt/opencv/lib" >> $GITHUB_ENV
+              echo "OPENCV_INCLUDE_DIR=/usr/local/opt/opencv/include/opencv4" >> $GITHUB_ENV
+              echo "OPENCV_LIB_DIR=/usr/local/opt/opencv/lib" >> $GITHUB_ENV
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install OpenCV (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+          args: install opencv --version=4.10.0
+
+      - name: Setup OpenCV
+        run: ${{ matrix.setup_cmd }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: binaries-${{ matrix.os }}
+          path: |
+            build/bin/Release/*.dll
+            build/lib/*.so
+            build/lib/*.dylib
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Prepare package
+        run: |
+          mkdir -p build/bin/Release build/lib
+          cp artifacts/binaries-windows-latest/build/bin/Release/*.dll build/bin/Release/ || true
+          cp artifacts/binaries-ubuntu-latest/build/lib/*.so build/lib/ || true
+          cp artifacts/binaries-macos-latest/build/lib/*.dylib build/lib/ || true
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Publish to npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          npm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
