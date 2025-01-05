@@ -24,7 +24,6 @@ jobs:
               echo "OPENCV_INCLUDE_DIR=C:\\tools\\opencv\\build\\include">> %GITHUB_ENV%
               echo "OPENCV_LIB_DIR=C:\\tools\\opencv\\build\\x64\\vc16\\lib">> %GITHUB_ENV%
               echo "PATH=C:\\tools\\opencv\\build\\x64\\vc16\\bin;%PATH%">> %GITHUB_ENV%
-              refreshenv
             shell: cmd
           - os: ubuntu-latest
             setup_cmd: |
