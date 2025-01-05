@@ -28,7 +28,9 @@ jobs:
           - os: macos-latest
             setup_cmd: |
               brew install opencv
+              brew info opencv
               ls -la /opt/homebrew/opt/opencv/lib/
+              ls -la /opt/homebrew/Cellar/opencv/
               echo "OPENCV_DIR=/opt/homebrew/opt/opencv" >> $GITHUB_ENV
               echo "OPENCV_BIN_DIR=/opt/homebrew/opt/opencv/lib" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/opt/homebrew/opt/opencv/include/opencv4" >> $GITHUB_ENV

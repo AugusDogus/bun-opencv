@@ -17,6 +17,25 @@ if(UNIX)
     # Set visibility flags for Unix
     set(CMAKE_CXX_VISIBILITY_PRESET hidden)
     set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
+    if(APPLE)
+        # Debug output for macOS
+        message(STATUS "macOS OpenCV library paths:")
+        execute_process(
+            COMMAND ls -la $ENV{OPENCV_LIB_DIR}
+            COMMAND grep "libopencv"
+            OUTPUT_VARIABLE OPENCV_LIB_LIST
+        )
+        message(STATUS "Found libraries:\n${OPENCV_LIB_LIST}")
+
+        # On macOS, libraries are named libopencv_*.dylib
+        set(OpenCV_LIBRARIES "")
+        foreach(lib ${OpenCV_LIBRARIES})
+            string(REGEX REPLACE "^opencv_" "libopencv_" DYLIB_NAME "${lib}")
+            string(APPEND DYLIB_NAME ".dylib")
+            list(APPEND OpenCV_LIBRARIES "$ENV{OPENCV_LIB_DIR}/${DYLIB_NAME}")
+        endforeach()
+    endif()
 else()
     # Windows
     message(STATUS "OPENCV_DIR environment variable: $ENV{OPENCV_DIR}")
