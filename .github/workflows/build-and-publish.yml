@@ -20,12 +20,10 @@ jobs:
           - os: windows-latest
             setup_cmd: |
               choco install opencv --version=4.10.0
-              echo "OPENCV_BIN_DIR=C:\\tools\\opencv\\build\\x64\\vc16\\bin">> %GITHUB_ENV%
-              echo "OPENCV_DIR=C:\\tools\\opencv">> %GITHUB_ENV%
-              echo "OPENCV_INCLUDE_DIR=C:\\tools\\opencv\\build\\include">> %GITHUB_ENV%
-              echo "OPENCV_LIB_DIR=C:\\tools\\opencv\\build\\x64\\vc16\\lib">> %GITHUB_ENV%
-              echo "PATH=C:\\tools\\opencv\\build\\x64\\vc16\\bin;%PATH%">> %GITHUB_ENV%
-            shell: cmd
+              echo OPENCV_DIR=C:\tools\opencv>> %GITHUB_ENV%
+              echo OPENCV_INCLUDE_DIR=C:\tools\opencv\build\include>> %GITHUB_ENV%
+              echo OPENCV_LIB_DIR=C:\tools\opencv\build\x64\vc16\lib>> %GITHUB_ENV%
+              echo PATH=C:\tools\opencv\build\x64\vc16\bin;%PATH%>> %GITHUB_ENV%
           - os: ubuntu-latest
             setup_cmd: |
               sudo apt-get update
@@ -33,13 +31,12 @@ jobs:
               echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/usr/include/opencv4" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=/usr/lib" >> $GITHUB_ENV
-          - os: macos-latest-large
+          - os: macos-13
             setup_cmd: |
               brew install opencv
               echo "OPENCV_DIR=/usr/local/opt/opencv" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/usr/local/opt/opencv/include/opencv4" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=/usr/local/opt/opencv/lib" >> $GITHUB_ENV
-            shell: bash
 
     defaults:
       run:
@@ -53,53 +50,19 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Cache OpenCV
-        uses: actions/cache@v4
-        id: opencv-cache
-        with:
-          path: |
-            C:\tools\opencv
-            /usr/local/opt/opencv
-            /usr/include/opencv4
-          key: opencv-${{ matrix.os }}-4.10.0
-
       - name: Setup OpenCV
-        if: steps.opencv-cache.outputs.cache-hit != 'true'
+        if: matrix.os == 'windows-latest'
+        shell: cmd
         run: ${{ matrix.setup_cmd }}
 
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
+      - name: Setup OpenCV
+        if: matrix.os != 'windows-latest'
+        run: ${{ matrix.setup_cmd }}
 
       - name: Install dependencies
         run: bun install
 
-      - name: Cache CMake files
-        uses: actions/cache@v4
-        with:
-          path: |
-            build
-            CMakeFiles
-            CMakeCache.txt
-          key: ${{ runner.os }}-cmake-${{ hashFiles('CMakeLists.txt', 'src/**') }}
-          restore-keys: |
-            ${{ runner.os }}-cmake-
-
-      - name: Configure and Build (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          mkdir build
-          cd build
-          cmake ..
-          cmake --build . --config Release
-
-      - name: Configure and Build (Unix)
-        if: matrix.os != 'windows-latest'
+      - name: Configure and Build
         run: |
           mkdir -p build
           cd build
@@ -137,7 +100,7 @@ jobs:
           mkdir -p build/bin/Release build/lib
           cp artifacts/binaries-windows-latest/build/bin/Release/*.dll build/bin/Release/ || true
           cp artifacts/binaries-ubuntu-latest/build/lib/*.so build/lib/ || true
-          cp artifacts/binaries-macos-latest-large/build/lib/*.dylib build/lib/ || true
+          cp artifacts/binaries-macos-13/build/lib/*.dylib build/lib/ || true
 
       - name: Install dependencies
         run: bun install
