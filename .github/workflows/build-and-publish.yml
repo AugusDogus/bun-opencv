@@ -31,7 +31,7 @@ jobs:
               echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/usr/include/opencv4" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=/usr/lib" >> $GITHUB_ENV
-          - os: macos-13
+          - os: macos-latest-large
             setup_cmd: |
               brew install opencv
               echo "OPENCV_DIR=/usr/local/opt/opencv" >> $GITHUB_ENV
@@ -100,7 +100,7 @@ jobs:
           mkdir -p build/bin/Release build/lib
           cp artifacts/binaries-windows-latest/build/bin/Release/*.dll build/bin/Release/ || true
           cp artifacts/binaries-ubuntu-latest/build/lib/*.so build/lib/ || true
-          cp artifacts/binaries-macos-13/build/lib/*.dylib build/lib/ || true
+          cp artifacts/binaries-macos-latest-large/build/lib/*.dylib build/lib/ || true
 
       - name: Install dependencies
         run: bun install
