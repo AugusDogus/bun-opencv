@@ -32,9 +32,6 @@ if(UNIX)
         # Debug output
         message(STATUS "OpenCV library dirs: ${OpenCV_LIBRARY_DIRS}")
         message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
-        
-        # Update target link libraries
-        target_link_libraries(template_matcher PRIVATE ${OpenCV_LIBS})
     endif()
 else()
     # Windows
@@ -64,10 +61,15 @@ endforeach()
 
 add_library(template_matcher SHARED src/cpp/template_matcher.cpp)
 target_include_directories(template_matcher PRIVATE ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(template_matcher ${OpenCV_LIBRARIES})
 
 set_target_properties(template_matcher PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 ) 
+
+if(APPLE)
+    target_link_libraries(template_matcher PRIVATE ${OpenCV_LIBS})
+else()
+    target_link_libraries(template_matcher PRIVATE ${OpenCV_LIBRARIES})
+endif() 
