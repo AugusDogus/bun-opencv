@@ -60,11 +60,20 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Configure CMake
+      - name: Configure CMake (Unix)
+        if: matrix.os != 'windows-latest'
         run: |
           mkdir -p build
           cd build
           cmake ..
+
+      - name: Configure CMake (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          mkdir build
+          cd build
+          cmake -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH=C:/tools/opencv/build ..
 
       - name: Build
         run: bun run build
