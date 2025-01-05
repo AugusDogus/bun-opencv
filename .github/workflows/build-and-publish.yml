@@ -24,6 +24,7 @@ jobs:
               echo OPENCV_INCLUDE_DIR=C:\tools\opencv\build\include>> %GITHUB_ENV%
               echo OPENCV_LIB_DIR=C:\tools\opencv\build\x64\vc16\lib>> %GITHUB_ENV%
               echo PATH=C:\tools\opencv\build\x64\vc16\bin;%PATH%>> %GITHUB_ENV%
+              refreshenv
             shell: cmd
           - os: ubuntu-latest
             setup_cmd: |
@@ -32,7 +33,6 @@ jobs:
               echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/usr/include/opencv4" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=/usr/lib" >> $GITHUB_ENV
-            shell: bash
           - os: macos-latest-large
             setup_cmd: |
               brew install opencv
@@ -53,11 +53,41 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Cache OpenCV
+        uses: actions/cache@v4
+        id: opencv-cache
+        with:
+          path: |
+            C:\tools\opencv
+            /usr/local/opt/opencv
+            /usr/include/opencv4
+          key: opencv-${{ matrix.os }}-4.10.0
+
       - name: Setup OpenCV
+        if: steps.opencv-cache.outputs.cache-hit != 'true'
         run: ${{ matrix.setup_cmd }}
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
 
       - name: Install dependencies
         run: bun install
+
+      - name: Cache CMake files
+        uses: actions/cache@v4
+        with:
+          path: |
+            build
+            CMakeFiles
+            CMakeCache.txt
+          key: ${{ runner.os }}-cmake-${{ hashFiles('CMakeLists.txt', 'src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-
 
       - name: Configure and Build
         run: |
