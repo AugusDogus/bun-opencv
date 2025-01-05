@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 project(template_matcher)
 
+# Set C++11 as required
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Define that we are building a DLL
 add_definitions(-DBUILDING_DLL)
 
