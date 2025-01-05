@@ -19,7 +19,7 @@ jobs:
         include:
           - os: windows-latest
             setup_cmd: |
-              echo "OPENCV_DIR=C:/tools/opencv/build" >> $GITHUB_ENV
+              echo "OPENCV_DIR=C:/tools/opencv" >> $GITHUB_ENV
               echo "OPENCV_BIN_DIR=C:/tools/opencv/build/x64/vc16/bin" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=C:/tools/opencv/build/include" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=C:/tools/opencv/build/x64/vc16/lib" >> $GITHUB_ENV
