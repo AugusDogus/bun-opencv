@@ -28,10 +28,11 @@ jobs:
           - os: macos-latest
             setup_cmd: |
               brew install opencv
-              echo "OPENCV_DIR=/usr/local/opt/opencv" >> $GITHUB_ENV
-              echo "OPENCV_BIN_DIR=/usr/local/opt/opencv/lib" >> $GITHUB_ENV
-              echo "OPENCV_INCLUDE_DIR=/usr/local/opt/opencv/include/opencv4" >> $GITHUB_ENV
-              echo "OPENCV_LIB_DIR=/usr/local/opt/opencv/lib" >> $GITHUB_ENV
+              echo "OPENCV_DIR=/opt/homebrew/opt/opencv" >> $GITHUB_ENV
+              echo "OPENCV_BIN_DIR=/opt/homebrew/opt/opencv/lib" >> $GITHUB_ENV
+              echo "OPENCV_INCLUDE_DIR=/opt/homebrew/opt/opencv/include/opencv4" >> $GITHUB_ENV
+              echo "OPENCV_LIB_DIR=/opt/homebrew/opt/opencv/lib" >> $GITHUB_ENV
+              echo "/opt/homebrew/opt/opencv/lib" >> $GITHUB_PATH
 
     steps:
       - uses: actions/checkout@v3
