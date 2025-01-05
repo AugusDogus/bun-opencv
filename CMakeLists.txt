@@ -21,15 +21,25 @@ if(UNIX)
     if(APPLE)
         # If pkg-config didn't find libraries, set them manually
         if(NOT OpenCV_LIBRARIES)
+            message(STATUS "pkg-config didn't find libraries, setting manually")
             set(OpenCV_LIBRARY_DIRS $ENV{OPENCV_LIB_DIR})
             set(OpenCV_INCLUDE_DIRS $ENV{OPENCV_INCLUDE_DIR})
             
             # List the specific libraries we need
             set(OpenCV_LIBRARIES
-                "${OpenCV_LIBRARY_DIRS}/libopencv_core.dylib"
-                "${OpenCV_LIBRARY_DIRS}/libopencv_imgproc.dylib"
-                "${OpenCV_LIBRARY_DIRS}/libopencv_imgcodecs.dylib"
+                "${OpenCV_LIBRARY_DIRS}/libopencv_core.4.10.0.dylib"
+                "${OpenCV_LIBRARY_DIRS}/libopencv_imgproc.4.10.0.dylib"
+                "${OpenCV_LIBRARY_DIRS}/libopencv_imgcodecs.4.10.0.dylib"
             )
+            
+            # Debug output
+            foreach(lib ${OpenCV_LIBRARIES})
+                if(EXISTS "${lib}")
+                    message(STATUS "Found library: ${lib}")
+                else()
+                    message(STATUS "Missing library: ${lib}")
+                endif()
+            endforeach()
         endif()
     endif()
 else()
