@@ -19,11 +19,11 @@ jobs:
         include:
           - os: windows-latest
             setup_cmd: |
-              echo "OPENCV_DIR=C:/tools/opencv" >> $GITHUB_ENV
-              echo "OPENCV_BIN_DIR=C:/tools/opencv/build/x64/vc16/bin" >> $GITHUB_ENV
-              echo "OPENCV_INCLUDE_DIR=C:/tools/opencv/build/include" >> $GITHUB_ENV
-              echo "OPENCV_LIB_DIR=C:/tools/opencv/build/x64/vc16/lib" >> $GITHUB_ENV
-              echo "C:/tools/opencv/build/x64/vc16/bin" >> $GITHUB_PATH
+              echo "OPENCV_DIR=C:/tools/opencv" >> ${env:GITHUB_ENV}
+              echo "OPENCV_BIN_DIR=C:/tools/opencv/build/x64/vc16/bin" >> ${env:GITHUB_ENV}
+              echo "OPENCV_INCLUDE_DIR=C:/tools/opencv/build/include" >> ${env:GITHUB_ENV}
+              echo "OPENCV_LIB_DIR=C:/tools/opencv/build/x64/vc16/lib" >> ${env:GITHUB_ENV}
+              echo "C:/tools/opencv/build/x64/vc16/bin" >> ${env:PATH}
           - os: ubuntu-latest
             setup_cmd: |
               sudo apt-get update
