@@ -43,12 +43,13 @@ jobs:
 
       - name: Setup Windows Environment
         if: matrix.os == 'windows-latest'
+        shell: cmd
         run: |
-          echo "OPENCV_DIR=C:/tools/opencv" >> $GITHUB_ENV
-          echo "OPENCV_BIN_DIR=C:/tools/opencv/build/x64/vc16/bin" >> $GITHUB_ENV
-          echo "OPENCV_INCLUDE_DIR=C:/tools/opencv/build/include" >> $GITHUB_ENV
-          echo "OPENCV_LIB_DIR=C:/tools/opencv/build/x64/vc16/lib" >> $GITHUB_ENV
-          echo "PATH=C:/tools/opencv/build/x64/vc16/bin;$PATH" >> $GITHUB_ENV
+          echo OPENCV_DIR=C:\tools\opencv>> %GITHUB_ENV%
+          echo OPENCV_BIN_DIR=C:\tools\opencv\build\x64\vc16\bin>> %GITHUB_ENV%
+          echo OPENCV_INCLUDE_DIR=C:\tools\opencv\build\include>> %GITHUB_ENV%
+          echo OPENCV_LIB_DIR=C:\tools\opencv\build\x64\vc16\lib>> %GITHUB_ENV%
+          echo PATH=C:\tools\opencv\build\x64\vc16\bin;%PATH%>> %GITHUB_ENV%
 
       - name: Install OpenCV (Windows)
         if: matrix.os == 'windows-latest'
