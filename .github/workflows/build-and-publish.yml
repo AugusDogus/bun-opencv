@@ -17,13 +17,6 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         include:
-          - os: windows-latest
-            setup_cmd: |
-              echo "OPENCV_DIR=C:/tools/opencv" >> ${env:GITHUB_ENV}
-              echo "OPENCV_BIN_DIR=C:/tools/opencv/build/x64/vc16/bin" >> ${env:GITHUB_ENV}
-              echo "OPENCV_INCLUDE_DIR=C:/tools/opencv/build/include" >> ${env:GITHUB_ENV}
-              echo "OPENCV_LIB_DIR=C:/tools/opencv/build/x64/vc16/lib" >> ${env:GITHUB_ENV}
-              echo "C:/tools/opencv/build/x64/vc16/bin" >> ${env:PATH}
           - os: ubuntu-latest
             setup_cmd: |
               sudo apt-get update
@@ -48,6 +41,15 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Setup Windows Environment
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo "OPENCV_DIR=C:/tools/opencv" >> $GITHUB_ENV
+          echo "OPENCV_BIN_DIR=C:/tools/opencv/build/x64/vc16/bin" >> $GITHUB_ENV
+          echo "OPENCV_INCLUDE_DIR=C:/tools/opencv/build/include" >> $GITHUB_ENV
+          echo "OPENCV_LIB_DIR=C:/tools/opencv/build/x64/vc16/lib" >> $GITHUB_ENV
+          echo "C:/tools/opencv/build/x64/vc16/bin" >> $GITHUB_PATH
+
       - name: Install OpenCV (Windows)
         if: matrix.os == 'windows-latest'
         uses: crazy-max/ghaction-chocolatey@v3
@@ -55,6 +57,7 @@ jobs:
           args: install opencv --version=4.10.0
 
       - name: Setup OpenCV
+        if: matrix.os != 'windows-latest'
         run: ${{ matrix.setup_cmd }}
 
       - name: Install dependencies
