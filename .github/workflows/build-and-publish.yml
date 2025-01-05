@@ -22,18 +22,14 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y libopencv-dev
               echo "OPENCV_DIR=/usr" >> $GITHUB_ENV
-              echo "OPENCV_BIN_DIR=/usr/lib" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/usr/include/opencv4" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=/usr/lib" >> $GITHUB_ENV
           - os: macos-13
             setup_cmd: |
               brew install opencv
-              ls -la /usr/local/opt/opencv/lib/
               echo "OPENCV_DIR=/usr/local/opt/opencv" >> $GITHUB_ENV
-              echo "OPENCV_BIN_DIR=/usr/local/opt/opencv/lib" >> $GITHUB_ENV
               echo "OPENCV_INCLUDE_DIR=/usr/local/opt/opencv/include/opencv4" >> $GITHUB_ENV
               echo "OPENCV_LIB_DIR=/usr/local/opt/opencv/lib" >> $GITHUB_ENV
-              pkg-config --libs opencv4
 
     steps:
       - uses: actions/checkout@v3
@@ -48,7 +44,6 @@ jobs:
         shell: cmd
         run: |
           echo OPENCV_DIR=C:\tools\opencv>> %GITHUB_ENV%
-          echo OPENCV_BIN_DIR=C:\tools\opencv\build\x64\vc16\bin>> %GITHUB_ENV%
           echo OPENCV_INCLUDE_DIR=C:\tools\opencv\build\include>> %GITHUB_ENV%
           echo OPENCV_LIB_DIR=C:\tools\opencv\build\x64\vc16\lib>> %GITHUB_ENV%
           echo PATH=C:\tools\opencv\build\x64\vc16\bin;%PATH%>> %GITHUB_ENV%
@@ -59,30 +54,19 @@ jobs:
         with:
           args: install opencv --version=4.10.0
 
-      - name: Setup OpenCV
+      - name: Setup OpenCV (Unix)
         if: matrix.os != 'windows-latest'
         run: ${{ matrix.setup_cmd }}
 
       - name: Install dependencies
         run: bun install
 
-      - name: Configure CMake (Unix)
-        if: matrix.os != 'windows-latest'
+      - name: Configure and Build
         run: |
           mkdir -p build
           cd build
           cmake ..
-
-      - name: Configure CMake (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          mkdir build
-          cd build
-          cmake ..
-
-      - name: Build
-        run: bun run build
+          cmake --build . --config Release
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -115,7 +99,7 @@ jobs:
           mkdir -p build/bin/Release build/lib
           cp artifacts/binaries-windows-latest/build/bin/Release/*.dll build/bin/Release/ || true
           cp artifacts/binaries-ubuntu-latest/build/lib/*.so build/lib/ || true
-          cp artifacts/binaries-macos-latest/build/lib/*.dylib build/lib/ || true
+          cp artifacts/binaries-macos-13/build/lib/*.dylib build/lib/ || true
 
       - name: Install dependencies
         run: bun install
