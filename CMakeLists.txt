@@ -19,28 +19,22 @@ if(UNIX)
     set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 
     if(APPLE)
-        # If pkg-config didn't find libraries, set them manually
-        if(NOT OpenCV_LIBRARIES)
-            message(STATUS "pkg-config didn't find libraries, setting manually")
-            set(OpenCV_LIBRARY_DIRS $ENV{OPENCV_LIB_DIR})
-            set(OpenCV_INCLUDE_DIRS $ENV{OPENCV_INCLUDE_DIR})
-            
-            # List the specific libraries we need
-            set(OpenCV_LIBRARIES
-                "${OpenCV_LIBRARY_DIRS}/libopencv_core.4.10.0.dylib"
-                "${OpenCV_LIBRARY_DIRS}/libopencv_imgproc.4.10.0.dylib"
-                "${OpenCV_LIBRARY_DIRS}/libopencv_imgcodecs.4.10.0.dylib"
-            )
-            
-            # Debug output
-            foreach(lib ${OpenCV_LIBRARIES})
-                if(EXISTS "${lib}")
-                    message(STATUS "Found library: ${lib}")
-                else()
-                    message(STATUS "Missing library: ${lib}")
-                endif()
-            endforeach()
-        endif()
+        # Add OpenCV library directory to link path
+        link_directories(${OpenCV_LIBRARY_DIRS})
+        
+        # List only the libraries we need
+        set(OpenCV_LIBS
+            opencv_core
+            opencv_imgproc
+            opencv_imgcodecs
+        )
+        
+        # Debug output
+        message(STATUS "OpenCV library dirs: ${OpenCV_LIBRARY_DIRS}")
+        message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
+        
+        # Update target link libraries
+        target_link_libraries(template_matcher PRIVATE ${OpenCV_LIBS})
     endif()
 else()
     # Windows
